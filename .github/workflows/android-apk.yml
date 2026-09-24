@@ -39,6 +39,17 @@ jobs:
         env:
           CI: 1
 
+      - name: Check Expo inline-modules step
+        # Runs the node command Gradle calls during configuration
+        # (ExpoAutolinkingPlugin), so its error output is visible.
+        working-directory: android
+        run: |
+          EXPO_ANDROID="$(node -p "require('path').dirname(require.resolve('expo/package.json'))")/android"
+          node --eval "require('expo/bin/autolinking')" expo-modules-autolinking mirror-kotlin-inline-modules \
+            --kotlin-files-mirror-directory "$EXPO_ANDROID/src/main/java/inline/modules/" \
+            --inline-modules-list-directory "$EXPO_ANDROID/build/inline/modules/" \
+            --watched-directories-serialized "[]"
+
       - name: Raise Gradle memory limits
         # The defaults written by prebuild (512 MB Metaspace) make KSP crash with
         # OutOfMemoryError: Metaspace, after which Gradle hangs until the timeout.
