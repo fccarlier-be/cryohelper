@@ -178,6 +178,8 @@ L'application tourne dans [Expo Go](https://expo.dev/go). Expo Go ne prend en ch
 npm install          # installer les dépendances
 npx expo start       # serveur de développement (QR code pour Expo Go)
 npm run type-check   # vérification TypeScript (tsc --noEmit)
+npm run lint         # ESLint (configuration eslint-config-expo)
+npm test             # tests unitaires Jest (src/**/__tests__)
 npx expo-doctor      # contrôle de cohérence du projet Expo
 npx expo install --fix   # réaligner les dépendances sur le SDK Expo
 ```
@@ -190,6 +192,21 @@ cd android && ./gradlew assembleRelease
 ```
 
 Les dossiers `android/` et `ios/` sont **générés** par `expo prebuild` et ne sont pas versionnés.
+
+### Tests et intégration continue
+
+Les tests (`src/__tests__/`) couvrent la logique de calcul, sans interface :
+- conversions d'unités ;
+- bilans thermiques (modes rapide, détaillé et COSTIC) ;
+- interpolation dans les tables de fluides, vérifiée contre des valeurs de référence CoolProp/NIST ;
+- calcul du cycle frigorifique ;
+- moteur de diagnostic.
+
+Ils lisent les tables `.bin` directement sur le disque.
+
+Le workflow [`.github/workflows/checks.yml`](.github/workflows/checks.yml) lance `type-check`, `lint` et `test` à chaque push et sur chaque pull request.
+
+ESLint signale encore des avertissements (`react-hooks/refs`, `react-hooks/set-state-in-effect`). Ces règles visent le React Compiler, que le projet n'active pas ; elles sont volontairement rétrogradées en avertissements dans `eslint.config.js`.
 
 ### Mettre à jour le SDK Expo
 
@@ -303,10 +320,16 @@ On en déduit : COP = (h₁ − h₄)/(h₂ − h₁), le taux de compression P_
 
 ```bash
 pip install CoolProp
-python scripts/generate_tables.py
+python scripts/generate_tables.py                  # les 23 fluides → src/data/tables/*.bin + index.bin
+python scripts/generate_tables.py --only R454B,R32 # quelques fluides seulement
+python scripts/generate_tables.py --check          # compare avec les tables actuelles, sans rien écrire
 ```
 
-Le script écrit des fichiers `.json` dans `src/data/tables/`. Il faut ensuite les renommer en `.bin`, et tout nouveau fluide doit être déclaré dans `fluidTableLoader.ts`, `fluidCatalog.ts` et le type `RefrigerantId`. Voir aussi les [points connus](#points-connus--pistes-damélioration) : le script ne couvre pas encore les 23 fluides.
+Le script produit directement les fichiers `.bin` lus par l'application :
+- **fluides purs et pseudo-purs :** table indexée en température ;
+- **mélanges zéotropiques :** table indexée en pression, avec températures de bulle et de rosée. Elle est obtenue par un calcul exact de bulle/rosée, complété par l'enveloppe de phase CoolProp près du point critique.
+
+Tout nouveau fluide doit aussi être déclaré dans `fluidTableLoader.ts`, `fluidCatalog.ts` et le type `RefrigerantId`. Lancer ensuite `npm test`.
 
 ---
 
@@ -344,22 +367,24 @@ CryoHelper est un **outil d'aide à la décision sur le terrain**. Il ne remplac
 - **Diagnostic :** il repose sur des règles heuristiques. Le score indique une piste probable, pas une certitude.
 - **Cycle calculé :** il ne tient pas compte des pertes de charge. Le point 3 est approché par le liquide saturé à la température sous-refroidie.
 - **Tables des mélanges :** leur précision dépend des modèles de mélange de CoolProp.
+- **R407C :** il est traité comme un fluide pseudo-pur, donc son glissement (environ 7 K) est ignoré. R410A, R404A et R507A sont dans le même cas, mais leur glissement est négligeable.
 
 ---
 
 ## Points connus / pistes d'amélioration
 
-- **`npm run lint` ne fonctionne pas :** ESLint n'est ni installé ni configuré. Il faudrait ajouter `eslint` et `eslint-config-expo` avec un `eslint.config.js`.
-- **`scripts/generate_tables.py` n'est pas à jour :**
-  - il ne génère que les 14 fluides purs et pseudo-purs, alors que les 9 mélanges zéotropiques et R718 ont été produits autrement, au format indexé par pression ;
-  - ses commentaires disent que R448A, R449A, R452A et R454B nécessitent REFPROP, alors que les tables embarquées les incluent via des mélanges CoolProp ;
-  - il écrit des `.json`, alors que l'application attend des `.bin`.
-- **Texte « À propos » à mettre à jour :** dans `src/data/legal.ts`, il mentionne encore « Modules V1 » et seulement 4 fluides.
-- **Code mort :**
-  - `src/constants/refrigerants.ts` (ancien jeu de données V1) n'est plus importé ;
-  - la dépendance `expo-haptics` n'est pas utilisée.
-- **Pas de tests automatisés :** les services de calcul (`thermalCalculator`, `fluidInterpolator`, `enthalpyCalculator`, `diagnosticRules`) sont de la logique pure. Ce sont de bons candidats pour des tests unitaires, par exemple avec Jest et `jest-expo`.
-- **Thème sombre et Android :** `userInterfaceStyle: "dark"` dans `app.json` nécessite `expo-system-ui` pour s'appliquer pleinement sur Android.
+- **Tables des mélanges zéotropiques embarquées :** les versions actuelles de `src/data/tables/` ont été produites par d'anciens scripts. `python scripts/generate_tables.py --check` les compare au modèle CoolProp actuel :
+  - **R448A :** enthalpie vapeur trop basse d'environ 20 kJ/kg, donc chaleur latente sous-estimée d'environ 9 % ;
+  - **R455A :** chaleur latente sous-estimée d'environ 25 kJ/kg, et températures fausses jusqu'à 10 K au-dessus de 25 bar ;
+  - **R452B et R454B :** les tables s'arrêtent vers 53–56 °C de condensation, alors que le point critique réel est vers 77–78 °C. Les « points critiques » de `fluidCatalog.ts` pour ces mélanges sont en fait la limite de ces anciennes tables.
+
+  Les régénérer avec le script corrige ces trois points.
+- **Heuristiques du diagnostic à calibrer :**
+  - une installation de climatisation saine (taux de compression d'environ 3) peut ressortir « détendeur sur-alimenté » à environ 34 % ;
+  - un condenseur sain à 40 °C peut ressortir « encrassé » à environ 31 %.
+
+  Dans les deux cas, le score dépasse le seuil de 30 % surtout grâce aux bonus « BP / HP normale », et non à cause d'un vrai symptôme.
+- **Couverture de tests :** seule la logique de calcul est testée. Les écrans ne le sont pas.
 
 ---
 
