@@ -15,7 +15,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -39,10 +39,32 @@ jobs:
         env:
           CI: 1
 
+      - name: Raise Gradle memory limits
+        # The defaults written by prebuild (512 MB Metaspace) make KSP crash with
+        # OutOfMemoryError: Metaspace, after which Gradle hangs until the timeout.
+        # Later keys override earlier ones in gradle.properties.
+        run: |
+          cat >> android/gradle.properties <<'PROPS'
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8
+          kotlin.daemon.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=1g
+          org.gradle.workers.max=2
+          PROPS
+
       - name: Build release APK
         working-directory: android
         # ARM only: covers real phones and tablets, and halves the build time.
-        run: ./gradlew assembleRelease -PreactNativeArchitectures=armeabi-v7a,arm64-v8a --no-daemon
+        # Release lint checks are skipped: they are slow and not needed for a sideloaded APK.
+        run: |
+          cat > "$RUNNER_TEMP/no-lint.gradle" <<'GRADLE'
+          allprojects {
+            tasks.configureEach { task ->
+              if (task.name.startsWith('lintVital')) task.enabled = false
+            }
+          }
+          GRADLE
+          ./gradlew assembleRelease --no-daemon \
+            -I "$RUNNER_TEMP/no-lint.gradle" \
+            -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
 
       - uses: actions/upload-artifact@v4
         with:
