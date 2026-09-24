@@ -1,0 +1,14 @@
+# Publishes an EAS Update on every push, so the latest code can be opened
+# in Expo Go (scan the QR code on the update page on expo.dev).
+name: Publish update for Expo Go
+
+on:
+  push:
+    branches: ['main', 'claude/*']
+
+jobs:
+  publish_update:
+    name: Publish update
+    type: update
+    params:
+      branch: preview
