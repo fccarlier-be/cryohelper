@@ -323,6 +323,8 @@ def generate_fluid(app_id, cp_name, display_name, kind, t_min_c, gwp, ashrae):
 def index_entry(data):
     entry = {k: data[k] for k in ("id", "name", "coolpropName", "molarMass", "criticalTempC",
                                   "criticalPressureBar", "gwp100", "ashraeClass")}
+    if data.get("isZeotropic"):
+        entry["isZeotropic"] = True
     entry["satPoints"] = len(data["sat"]["rows"])
     entry["shIsobars"] = len(data["sh"])
     return entry

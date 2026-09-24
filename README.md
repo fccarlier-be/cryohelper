@@ -366,19 +366,13 @@ CryoHelper est un **outil d'aide à la décision sur le terrain**. Il ne remplac
 - **Bilans thermiques :** ce sont des approximations d'ingénieur (plan carré supposé, coefficients U globaux, facteurs forfaitaires). La méthode COSTIC ne s'applique qu'au confort, avec une température intérieure de 24 °C.
 - **Diagnostic :** il repose sur des règles heuristiques. Le score indique une piste probable, pas une certitude.
 - **Cycle calculé :** il ne tient pas compte des pertes de charge. Le point 3 est approché par le liquide saturé à la température sous-refroidie.
-- **Tables des mélanges :** leur précision dépend des modèles de mélange de CoolProp.
+- **Tables des mélanges :** elles sont générées avec les modèles de mélange de CoolProp 8 (définitions `*.mix`). Près du point critique, les valeurs sont interpolées sur l'enveloppe de phase.
 - **R407C :** il est traité comme un fluide pseudo-pur, donc son glissement (environ 7 K) est ignoré. R410A, R404A et R507A sont dans le même cas, mais leur glissement est négligeable.
 
 ---
 
 ## Points connus / pistes d'amélioration
 
-- **Tables des mélanges zéotropiques embarquées :** les versions actuelles de `src/data/tables/` ont été produites par d'anciens scripts. `python scripts/generate_tables.py --check` les compare au modèle CoolProp actuel :
-  - **R448A :** enthalpie vapeur trop basse d'environ 20 kJ/kg, donc chaleur latente sous-estimée d'environ 9 % ;
-  - **R455A :** chaleur latente sous-estimée d'environ 25 kJ/kg, et températures fausses jusqu'à 10 K au-dessus de 25 bar ;
-  - **R452B et R454B :** les tables s'arrêtent vers 53–56 °C de condensation, alors que le point critique réel est vers 77–78 °C. Les « points critiques » de `fluidCatalog.ts` pour ces mélanges sont en fait la limite de ces anciennes tables.
-
-  Les régénérer avec le script corrige ces trois points.
 - **Heuristiques du diagnostic à calibrer :**
   - une installation de climatisation saine (taux de compression d'environ 3) peut ressortir « détendeur sur-alimenté » à environ 34 % ;
   - un condenseur sain à 40 °C peut ressortir « encrassé » à environ 31 %.

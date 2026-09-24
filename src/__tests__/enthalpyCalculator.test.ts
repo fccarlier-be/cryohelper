@@ -57,6 +57,13 @@ describe('calculateCycle', () => {
     expect(r.cop).toBeGreaterThan(2);
   });
 
+  test('R454B heat pump at 65 °C condensing is within the table range', async () => {
+    const r = await calculateCycle({ ...defaultCycleParams('R454B'), condTempC: 65 });
+    expect(r.points[1].pressureBar).toBeGreaterThan(40);
+    expect(r.cop).toBeGreaterThan(1.5);
+    expect(r.cop).toBeLessThan(4);
+  });
+
   test.each(['R134a', 'R32', 'R290', 'R404A', 'R717', 'R744', 'R454C', 'R600a'])(
     '%s default preset gives a plausible cycle',
     async (id) => {

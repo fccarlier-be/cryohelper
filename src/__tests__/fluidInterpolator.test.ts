@@ -53,6 +53,26 @@ describe('saturation (zeotropic blends)', () => {
     expect(glide).toBeLessThan(max);
   });
 
+  test('R448A matches published bubble/dew temperatures at 1 atm', () => {
+    // Solstice N40 (R448A) datasheet: bubble −45.9 °C, dew −39.8 °C at 1.013 bar
+    const pt = satFromPressure(readTable('R448A'), 1.013);
+    expect(pt.tempC).toBeCloseTo(-45.9, 0);
+    expect(pt.tempDewC!).toBeCloseTo(-39.8, 0);
+  });
+
+  test.each(['R448A', 'R449A', 'R452A', 'R452B', 'R454A', 'R454B', 'R454C', 'R455A'])(
+    '%s: latent heat is realistic and the table covers 60 °C condensing',
+    (id) => {
+      const table = readTable(id);
+      const pt = satFromTemp(table, 0);
+      const latent = pt.hVap_kJkg - pt.hLiq_kJkg;
+      expect(latent).toBeGreaterThan(140);
+      expect(latent).toBeLessThan(320);
+      // The last saturation row must be above 60 °C bubble temperature
+      expect(table.sat.rows[table.sat.rows.length - 1][1]).toBeGreaterThan(60);
+    },
+  );
+
   test('dew-temperature lookup is consistent with bubble lookup', () => {
     const table = readTable('R449A');
     const fromBubble = satFromTemp(table, -10);
