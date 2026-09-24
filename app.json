@@ -39,6 +39,11 @@
     },
     "updates": {
       "url": "https://u.expo.dev/aea56b0e-dabf-4b0c-b0c0-737316656b79"
-    }
+    },
+    "plugins": [
+      "expo-sharing",
+      "expo-status-bar",
+      "expo-asset"
+    ]
   }
 }
