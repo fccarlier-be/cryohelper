@@ -7,6 +7,11 @@ on:
     branches: ['main', 'claude/*']
   workflow_dispatch:
 
+# A newer push makes the running build obsolete.
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest

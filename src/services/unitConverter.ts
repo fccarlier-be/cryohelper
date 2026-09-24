@@ -1,50 +1,51 @@
 /**
  * Pure unit-conversion functions.
- * All functions return numbers rounded to 4 significant figures.
+ * All functions return numbers rounded to 6 significant figures (display
+ * precision is chosen by the caller).
  */
 
 // ─── Pressure ─────────────────────────────────────────────────────────────────
 
-export function barToPsi(bar: number): number   { return r4(bar * 14.5038); }
-export function psiToBar(psi: number): number   { return r4(psi / 14.5038); }
-export function barToKpa(bar: number): number   { return r4(bar * 100); }
-export function kpaToBar(kpa: number): number   { return r4(kpa / 100); }
-export function barToMpa(bar: number): number   { return r4(bar / 10); }
-export function mpaToBar(mpa: number): number   { return r4(mpa * 10); }
-export function barToPa(bar: number): number    { return r4(bar * 100_000); }
-export function paToBbar(pa: number): number    { return r4(pa / 100_000); }
+export function barToPsi(bar: number): number   { return rs(bar * 14.5038); }
+export function psiToBar(psi: number): number   { return rs(psi / 14.5038); }
+export function barToKpa(bar: number): number   { return rs(bar * 100); }
+export function kpaToBar(kpa: number): number   { return rs(kpa / 100); }
+export function barToMpa(bar: number): number   { return rs(bar / 10); }
+export function mpaToBar(mpa: number): number   { return rs(mpa * 10); }
+export function barToPa(bar: number): number    { return rs(bar * 100_000); }
+export function paToBbar(pa: number): number    { return rs(pa / 100_000); }
 
 // Gauge ↔ Absolute (assuming atmospheric = 1.01325 bar)
 export const P_ATM_BAR = 1.01325;
-export function absToGauge(absBar: number): number  { return r4(absBar - P_ATM_BAR); }
-export function gaugeToAbs(gaugeBar: number): number { return r4(gaugeBar + P_ATM_BAR); }
+export function absToGauge(absBar: number): number  { return rs(absBar - P_ATM_BAR); }
+export function gaugeToAbs(gaugeBar: number): number { return rs(gaugeBar + P_ATM_BAR); }
 
 // ─── Temperature ──────────────────────────────────────────────────────────────
 
-export function celsiusToKelvin(c: number): number  { return r4(c + 273.15); }
-export function kelvinToCelsius(k: number): number  { return r4(k - 273.15); }
-export function celsiusToFahrenheit(c: number): number { return r4(c * 9/5 + 32); }
-export function fahrenheitToCelsius(f: number): number { return r4((f - 32) * 5/9); }
+export function celsiusToKelvin(c: number): number  { return rs(c + 273.15); }
+export function kelvinToCelsius(k: number): number  { return rs(k - 273.15); }
+export function celsiusToFahrenheit(c: number): number { return rs(c * 9/5 + 32); }
+export function fahrenheitToCelsius(f: number): number { return rs((f - 32) * 5/9); }
 export function kelvinToFahrenheit(k: number): number  { return celsiusToFahrenheit(kelvinToCelsius(k)); }
 export function fahrenheitToKelvin(f: number): number  { return celsiusToKelvin(fahrenheitToCelsius(f)); }
 
 // ─── Power / Energy ───────────────────────────────────────────────────────────
 
-export function wToKw(w: number): number    { return r4(w / 1000); }
-export function kwToW(kw: number): number   { return r4(kw * 1000); }
-export function wToHp(w: number): number    { return r4(w / 745.7); }
-export function hpToW(hp: number): number   { return r4(hp * 745.7); }
-export function wToBtuH(w: number): number  { return r4(w * 3.41214); }
-export function btuHToW(btu: number): number { return r4(btu / 3.41214); }
-export function kwToBtuH(kw: number): number { return r4(kw * 3412.14); }
-export function btuHToKw(btu: number): number { return r4(btu / 3412.14); }
+export function wToKw(w: number): number    { return rs(w / 1000); }
+export function kwToW(kw: number): number   { return rs(kw * 1000); }
+export function wToHp(w: number): number    { return rs(w / 745.7); }
+export function hpToW(hp: number): number   { return rs(hp * 745.7); }
+export function wToBtuH(w: number): number  { return rs(w * 3.41214); }
+export function btuHToW(btu: number): number { return rs(btu / 3.41214); }
+export function kwToBtuH(kw: number): number { return rs(kw * 3412.14); }
+export function btuHToKw(btu: number): number { return rs(btu / 3412.14); }
 
 // ─── Flow rate ────────────────────────────────────────────────────────────────
 
-export function m3hToLs(m3h: number): number  { return r4(m3h / 3.6); }
-export function lsToM3h(ls: number): number   { return r4(ls * 3.6); }
-export function m3hToCfm(m3h: number): number { return r4(m3h * 0.5886); }
-export function cfmToM3h(cfm: number): number { return r4(cfm / 0.5886); }
+export function m3hToLs(m3h: number): number  { return rs(m3h / 3.6); }
+export function lsToM3h(ls: number): number   { return rs(ls * 3.6); }
+export function m3hToCfm(m3h: number): number { return rs(m3h * 0.5886); }
+export function cfmToM3h(cfm: number): number { return rs(cfm / 0.5886); }
 
 // ─── Quick calculations ───────────────────────────────────────────────────────
 
@@ -83,9 +84,9 @@ export function computeSubcooling(tSatCond: number, tLiquidOutlet: number): numb
 
 // ─── Private ──────────────────────────────────────────────────────────────────
 
-function r4(v: number): number {
+function rs(v: number): number {
   if (!isFinite(v)) return v;
-  const mag = Math.pow(10, 4 - Math.floor(Math.log10(Math.abs(v || 1))) - 1);
+  const mag = Math.pow(10, 6 - Math.floor(Math.log10(Math.abs(v || 1))) - 1);
   return Math.round(v * mag) / mag;
 }
 

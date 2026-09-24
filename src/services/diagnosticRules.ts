@@ -15,6 +15,20 @@ import type { DiagnosticInput } from '../types/diagnostic';
 
 const MAX_COMPRESSION_RATIO = 5.0;
 
+// Pressure levels are judged through saturation temperatures so the rules work
+// for every fluid. The thresholds are the R410A saturation temperatures of the
+// original absolute-pressure thresholds (8, 16, 22, 25, 28, 35, 40 bar; 3 bar BP).
+const COND_T = {
+  lowFrom: 0,        // 8 bar
+  lowTo: 24,         // 16 bar
+  condenserFrom: 36, // 22 bar
+  hpHighFrom: 41,    // 25 bar
+  veryHighFrom: 46,  // 28 bar
+  hpHighTo: 56,      // 35 bar
+  veryHighTo: 62,    // 40 bar
+};
+const MIN_NORMAL_EVAP_C = -27; // 3 bar
+
 function clamp01(v: number): number {
   return Math.max(0, Math.min(1, v));
 }
@@ -74,9 +88,9 @@ export function scoreRefrigerantOvercharge(
       symptoms.push(`Écart T cond − T ambiante : ${approach.toFixed(1)} K  (normal : ${NOMINAL_COND_APPROACH.min}–${NOMINAL_COND_APPROACH.max} K)`);
     weighted += 0.35 * hpSignal;
   } else {
-    const hpSignal = rampUp(input.hpBar, 25, 35);
+    const hpSignal = rampUp(input.condTempC, COND_T.hpHighFrom, COND_T.hpHighTo);
     if (hpSignal > 0.2)
-      symptoms.push(`HP élevée : ${input.hpBar.toFixed(1)} bar`);
+      symptoms.push(`HP élevée : ${input.hpBar.toFixed(1)} bar (T condensation ${input.condTempC.toFixed(1)} °C)`);
     weighted += 0.35 * hpSignal;
   }
 
@@ -131,9 +145,9 @@ export function scorePoorCondenser(
       symptoms.push(`Écart T cond − T ambiante : ${approach.toFixed(1)} K  (normal : ${NOMINAL_COND_APPROACH.min}–${NOMINAL_COND_APPROACH.max} K)`);
     weighted += 0.45 * hpSignal;
   } else {
-    const hpSignal = rampUp(input.hpBar, 22, 35);
+    const hpSignal = rampUp(input.condTempC, COND_T.condenserFrom, COND_T.hpHighTo);
     if (hpSignal > 0.2)
-      symptoms.push(`HP élevée : ${input.hpBar.toFixed(1)} bar`);
+      symptoms.push(`HP élevée : ${input.hpBar.toFixed(1)} bar (T condensation ${input.condTempC.toFixed(1)} °C)`);
     weighted += 0.45 * hpSignal;
   }
 
@@ -142,7 +156,7 @@ export function scorePoorCondenser(
     symptoms.push(`Sous-refroidissement : ${input.subcoolingK.toFixed(1)} K  (normal : ${NOMINAL_SUBCOOLING.min}–${NOMINAL_SUBCOOLING.max} K)`);
   weighted += 0.35 * scSignal;
 
-  const bpOk = input.bpBar >= 3 && input.hpBar / input.bpBar < 6;
+  const bpOk = input.evapTempC >= MIN_NORMAL_EVAP_C && input.hpBar / input.bpBar < 6;
   if (bpOk) symptoms.push(`BP dans les limites normales`);
   weighted += 0.20 * (bpOk ? 0.8 : 0);
 
@@ -195,7 +209,7 @@ export function scoreTxvOverfeeding(
     symptoms.push(`Taux de compression : ${ratio.toFixed(1)}  (normal : ${MIN_COMPRESSION_RATIO}–${MAX_COMPRESSION_RATIO})`);
   weighted += 0.30 * bpHighSignal;
 
-  const hpNormal = input.hpBar < 28;
+  const hpNormal = input.condTempC < COND_T.veryHighFrom;
   if (hpNormal) symptoms.push(`HP dans les limites normales`);
   weighted += 0.15 * (hpNormal ? 0.8 : 0);
 
@@ -225,7 +239,7 @@ export function scoreCompressorFault(
     weighted += 0.30 * tempSignal;
   }
 
-  const condApproachSignal = rampDown(input.hpBar, 8, 16);
+  const condApproachSignal = rampDown(input.condTempC, COND_T.lowFrom, COND_T.lowTo);
   if (condApproachSignal > 0.2)
     symptoms.push(`HP insuffisante pour la T de condensation visée`);
   weighted += 0.20 * condApproachSignal;
@@ -248,9 +262,9 @@ export function scoreNonCondensable(
       symptoms.push(`Écart T cond − T ambiante : ${approach.toFixed(1)} K  (normal : ${NOMINAL_COND_APPROACH.min}–${NOMINAL_COND_APPROACH.max} K)`);
     weighted += 0.50 * hpHighSignal;
   } else {
-    const hpHighSignal = rampUp(input.hpBar, 28, 40);
+    const hpHighSignal = rampUp(input.condTempC, COND_T.veryHighFrom, COND_T.veryHighTo);
     if (hpHighSignal > 0.2)
-      symptoms.push(`HP très élevée : ${input.hpBar.toFixed(1)} bar`);
+      symptoms.push(`HP très élevée : ${input.hpBar.toFixed(1)} bar (T condensation ${input.condTempC.toFixed(1)} °C)`);
     weighted += 0.50 * hpHighSignal;
   }
 
@@ -259,7 +273,7 @@ export function scoreNonCondensable(
     symptoms.push(`Sous-refroidissement : ${input.subcoolingK.toFixed(1)} K  (normal : ${NOMINAL_SUBCOOLING.min}–${NOMINAL_SUBCOOLING.max} K)`);
   weighted += 0.35 * scSignal;
 
-  const bpOk = input.bpBar >= 3 && input.hpBar / input.bpBar > 4;
+  const bpOk = input.evapTempC >= MIN_NORMAL_EVAP_C && input.hpBar / input.bpBar > 4;
   if (bpOk) symptoms.push(`BP dans les limites normales`);
   weighted += 0.15 * (bpOk ? 1.0 : 0);
 
