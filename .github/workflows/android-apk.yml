@@ -39,17 +39,6 @@ jobs:
         env:
           CI: 1
 
-      - name: Check Expo inline-modules step
-        # Runs the node command Gradle calls during configuration
-        # (ExpoAutolinkingPlugin), so its error output is visible.
-        working-directory: android
-        run: |
-          EXPO_ANDROID="$(node -p "require('path').dirname(require.resolve('expo/package.json'))")/android"
-          node --eval "require('expo/bin/autolinking')" expo-modules-autolinking mirror-kotlin-inline-modules \
-            --kotlin-files-mirror-directory "$EXPO_ANDROID/src/main/java/inline/modules/" \
-            --inline-modules-list-directory "$EXPO_ANDROID/build/inline/modules/" \
-            --watched-directories-serialized "[]"
-
       - name: Raise Gradle memory limits
         # The defaults written by prebuild (512 MB Metaspace) make KSP crash with
         # OutOfMemoryError: Metaspace, after which Gradle hangs until the timeout.
@@ -73,9 +62,24 @@ jobs:
             }
           }
           GRADLE
+          # Temporary diagnostics: log every node call Gradle makes, with its
+          # stderr, because Gradle hides the output of failing node commands.
+          mkdir -p "$RUNNER_TEMP/nodewrap"
+          REAL_NODE="$(command -v node)"
+          cat > "$RUNNER_TEMP/nodewrap/node" <<WRAP
+          #!/usr/bin/env bash
+          echo "=== node \$* (cwd: \$PWD)" >> "$RUNNER_TEMP/node-calls.log"
+          "$REAL_NODE" "\$@" 2> >(tee -a "$RUNNER_TEMP/node-calls.log" >&2)
+          status=\$?
+          echo "=== exit \$status" >> "$RUNNER_TEMP/node-calls.log"
+          exit \$status
+          WRAP
+          chmod +x "$RUNNER_TEMP/nodewrap/node"
+          export PATH="$RUNNER_TEMP/nodewrap:$PATH"
           ./gradlew assembleRelease --no-daemon --stacktrace \
             -I "$RUNNER_TEMP/no-lint.gradle" \
-            -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
+            -PreactNativeArchitectures=armeabi-v7a,arm64-v8a \
+            || { echo "----- node calls -----"; grep -B2 -A30 "exit [1-9]" "$RUNNER_TEMP/node-calls.log" | tail -120; exit 1; }
 
       - uses: actions/upload-artifact@v4
         with:
