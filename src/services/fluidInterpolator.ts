@@ -41,9 +41,6 @@ function bisectCol(rows: number[][], col: number, x: number): number {
   return lo;
 }
 
-function interpRows(rows: number[][], i: number, t: number, col: number): number {
-  return lerp(rows[i][col], rows[i + 1][col], t);
-}
 
 // ── Type de retour ────────────────────────────────────────────────────────────
 

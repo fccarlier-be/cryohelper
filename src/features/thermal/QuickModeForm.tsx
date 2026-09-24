@@ -6,7 +6,7 @@ import LabeledPicker from '../../components/LabeledPicker';
 import Card from '../../components/Card';
 import type { InsulationLevel, QuickThermalInput } from '../../types/thermal';
 
-const INSULATION_OPTIONS: Array<{ value: InsulationLevel; label: string }> = [
+const INSULATION_OPTIONS: { value: InsulationLevel; label: string }[] = [
   { value: 'low', label: 'Faible' },
   { value: 'medium', label: 'Moyen' },
   { value: 'good', label: 'Bon' },

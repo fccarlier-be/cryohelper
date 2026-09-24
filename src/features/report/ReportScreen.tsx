@@ -305,7 +305,7 @@ export default function ReportScreen(): React.JSX.Element {
     },
   }), [colors, spacing, radius, typography]);
 
-  function SigRow({
+  function renderSigRow({
     label, sublabel, signed, onPress, last,
   }: { label: string; sublabel?: string; signed: boolean; onPress: () => void; last?: boolean }) {
     const green = '#10B981';
@@ -462,19 +462,19 @@ export default function ReportScreen(): React.JSX.Element {
           {/* Signatures */}
           <Card>
             <SectionTitle title="Signatures" />
-            <SigRow
-              label="Technicien"
-              sublabel={technicianName || undefined}
-              signed={!!techSignature}
-              onPress={() => setActiveSig('tech')}
-            />
-            <SigRow
-              label="Client"
-              sublabel={clientName || undefined}
-              signed={!!clientSignature}
-              onPress={() => setActiveSig('client')}
-              last
-            />
+            {renderSigRow({
+              label: 'Technicien',
+              sublabel: technicianName || undefined,
+              signed: !!techSignature,
+              onPress: () => setActiveSig('tech'),
+            })}
+            {renderSigRow({
+              label: 'Client',
+              sublabel: clientName || undefined,
+              signed: !!clientSignature,
+              onPress: () => setActiveSig('client'),
+              last: true,
+            })}
           </Card>
 
           {/* Generate button */}

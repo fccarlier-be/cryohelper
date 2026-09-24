@@ -140,7 +140,7 @@ export default function DiagnosticResults({ results }: Props): React.JSX.Element
       <SectionTitle title="Pistes à investiguer" />
       <Text style={styles.disclaimer}>
         Le % indique à quel point vos mesures correspondent à chaque anomalie type.
-        Plus c'est élevé, plus la piste mérite d'être vérifiée sur le terrain.
+        Plus c’est élevé, plus la piste mérite d’être vérifiée sur le terrain.
       </Text>
       {results.map((r) => {
         const color = scoreColor(r.score);

@@ -3,6 +3,7 @@ import type { FluidTable } from '../types/fluidTable';
 
 // .bin files are registered as raw Metro assets (not inlined into the JS bundle).
 // require() here is only for asset registration — the content is loaded on-demand.
+/* eslint-disable @typescript-eslint/no-require-imports */
 const TABLE_MODULES: Record<string, number> = {
   R134a:   require('../data/tables/R134a.bin') as number,
   R32:     require('../data/tables/R32.bin') as number,
@@ -28,6 +29,7 @@ const TABLE_MODULES: Record<string, number> = {
   R455A:   require('../data/tables/R455A.bin') as number,
   R718:    require('../data/tables/R718.bin') as number,
 };
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 const cache = new Map<string, FluidTable>();
 

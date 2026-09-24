@@ -12,7 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppTheme } from '../../context/ThemeContext';
 import { loadHistory, deleteHistoryEntry, clearHistory } from '../../services/historyStorage';
-import type { CycleMetrics, HistoryEntry } from '../../types/history';
+import type { HistoryEntry } from '../../types/history';
 
 function pad2(n: number): string { return String(n).padStart(2, '0'); }
 
@@ -32,7 +32,7 @@ function MetricRow({
   higherIsBetter?: boolean;
   unit?: string;
 }) {
-  const { colors, spacing, typography } = useAppTheme();
+  const { colors, typography } = useAppTheme();
 
   let deltaEl: React.ReactNode = null;
   if (after != null && higherIsBetter !== undefined) {
@@ -92,7 +92,7 @@ function MetricRow({
 // ─── Column headers for the before/after table ────────────────────────────────
 
 function ColumnHeaders({ hasAfter }: { hasAfter: boolean }) {
-  const { colors, spacing, typography } = useAppTheme();
+  const { colors, typography } = useAppTheme();
   if (!hasAfter) return null;
   const cell = (label: string, color: string) => (
     <Text style={{
@@ -312,7 +312,7 @@ export default function HistoryScreen(): React.JSX.Element {
           <Ionicons name="time-outline" size={48} color={colors.textMuted} style={{ opacity: 0.3 }} />
           <Text style={styles.emptyTitle}>Aucune intervention enregistrée</Text>
           <Text style={styles.emptyDesc}>
-            Les entrées sont créées automatiquement lors de la génération d'un rapport PDF.
+            Les entrées sont créées automatiquement lors de la génération d’un rapport PDF.
           </Text>
         </View>
       ) : (

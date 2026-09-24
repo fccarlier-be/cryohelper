@@ -15,19 +15,19 @@ import type {
   RoomType,
 } from '../../types/thermal';
 
-const INSULATION_OPTIONS: Array<{ value: InsulationLevel; label: string }> = [
+const INSULATION_OPTIONS: { value: InsulationLevel; label: string }[] = [
   { value: 'low', label: 'Faible' },
   { value: 'medium', label: 'Moyen' },
   { value: 'good', label: 'Bon' },
 ];
 
-const INTERNAL_LOAD_OPTIONS: Array<{ value: InternalLoads; label: string }> = [
+const INTERNAL_LOAD_OPTIONS: { value: InternalLoads; label: string }[] = [
   { value: 'low', label: 'Faibles' },
   { value: 'medium', label: 'Moyens' },
   { value: 'high', label: 'Élevés' },
 ];
 
-const ROOM_TYPE_OPTIONS: Array<{ value: RoomType; label: string }> = (
+const ROOM_TYPE_OPTIONS: { value: RoomType; label: string }[] = (
   Object.entries(ROOM_TYPE_LABELS) as [RoomType, string][]
 ).map(([value, label]) => ({ value, label }));
 

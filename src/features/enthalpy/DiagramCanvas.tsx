@@ -13,7 +13,7 @@
  *  4. Axis tick labels
  */
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Svg, {
   Circle,
   ClipPath,
@@ -26,7 +26,7 @@ import Svg, {
 } from 'react-native-svg';
 import { useAppTheme } from '../../context/ThemeContext';
 import { satFromTemp, satFromPressure, satFromTempDew } from '../../services/fluidInterpolator';
-import type { CycleResult, CyclePoint } from '../../types/enthalpy';
+import type { CycleResult } from '../../types/enthalpy';
 import type { FluidTable } from '../../types/fluidTable';
 import { SH_COL, SAT_ZEO_COL } from '../../types/fluidTable';
 
@@ -98,7 +98,7 @@ function denseSatPoints(table: FluidTable): DomePt[] {
   return points;
 }
 
-function catmullRomPath(pts: Array<{ x: number; y: number }>): string {
+function catmullRomPath(pts: { x: number; y: number }[]): string {
   if (pts.length === 0) return '';
   let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
   for (let i = 0; i < pts.length - 1; i++) {
@@ -137,33 +137,13 @@ function buildDomePath(
   return `${liqPath} L${apexR.x.toFixed(1)},${apexR.y.toFixed(1)}${vapCurves} Z`;
 }
 
-function buildIsothermPath(
-  table: FluidTable,
-  tempC: number,
-  xOf: (h: number) => number,
-  yOf: (p: number) => number,
-): string {
-  const pts: Array<{ x: number; y: number }> = [];
-  for (const iso of table.sh) {
-    const fi = (tempC - iso.tMinC) / iso.tStepC;
-    if (fi < 0 || fi > iso.rows.length - 1) continue;
-    const i = Math.floor(fi);
-    const i1 = Math.min(i + 1, iso.rows.length - 1);
-    const frac = fi - i;
-    const h = iso.rows[i][SH_COL.H_KJKG] + frac * (iso.rows[i1][SH_COL.H_KJKG] - iso.rows[i][SH_COL.H_KJKG]);
-    pts.push({ x: xOf(h), y: yOf(iso.pBar) });
-  }
-  if (pts.length < 2) return '';
-  return catmullRomPath(pts);
-}
-
 function buildIsocharePath(
   table: FluidTable,
   rhoTarget: number,
   xOf: (h: number) => number,
   yOf: (p: number) => number,
 ): string {
-  const pts: Array<{ x: number; y: number }> = [];
+  const pts: { x: number; y: number }[] = [];
   for (const iso of table.sh) {
     const rows = iso.rows;
     if (rows.length < 2) continue;
@@ -196,7 +176,7 @@ export default function DiagramCanvas({
   isobarLow,
   isobarHigh,
 }: Props): React.JSX.Element {
-  const { colors, typography } = useAppTheme();
+  const { colors } = useAppTheme();
 
   // For zeotropic: compute "dew-side" display pressures so evap/cond segments are slanted.
   // P1 = pressure where Tdew = Tbub_evap (< P_evap); P2 = pressure where Tdew = Tbub_cond (< P_cond).
@@ -241,7 +221,7 @@ export default function DiagramCanvas({
       ? satRows[satRows.length - 1][1]          // last Tbub_C
       : table.sat.tMinC! + (satRows.length - 1) * table.sat.tStepC!;
     const DISP_T_MAX = Math.min(tMaxTable, table.criticalTempC);
-    const dispPts: Array<{ hLiq: number; hVap: number; p: number }> = [];
+    const dispPts: { hLiq: number; hVap: number; p: number }[] = [];
     for (let t = DISP_T_MIN; t <= DISP_T_MAX; t += 5) {
       const pt = satFromTemp(table, t);
       dispPts.push({ hLiq: pt.hLiq_kJkg, hVap: pt.hVap_kJkg, p: pt.pressureBar });
@@ -296,7 +276,7 @@ export default function DiagramCanvas({
 
       // Vapor side: isobars in ascending P order → append saturation point last
       // (monotone ascending P ensures the Catmull-Rom path doesn't loop back)
-      const vapPts: Array<{ x: number; y: number }> = [];
+      const vapPts: { x: number; y: number }[] = [];
       for (const iso of table.sh) {
         const fi = (t - iso.tMinC) / iso.tStepC;
         if (fi < 0 || fi > iso.rows.length - 1) continue;
@@ -322,7 +302,7 @@ export default function DiagramCanvas({
 
       return [{ t, vapPath, liqPath, domeX, domeY }];
     });
-  }, [table, xOf, yOf, pMax, plotW, plotH]);
+  }, [table, xOf, yOf, pMax]);
 
   // Isochores — 5 log-spaced density values across the sh-table range
   const isochoreLines = useMemo(() => {
@@ -360,7 +340,7 @@ export default function DiagramCanvas({
     );
     const tMinDew = isZeo ? satRows[0][2] : tMinBub;
     const tMaxDew = isZeo ? Math.min(satRows[satRows.length - 1][2], table.criticalTempC) : tMaxBub;
-    const result: Array<{ x: number; y: number; size: number; side: 'dew' | 'bubble' }> = [];
+    const result: { x: number; y: number; size: number; side: 'dew' | 'bubble' }[] = [];
 
     const addDew = (t: number, size: number) => {
       if (t % 10 === 0 || t <= tMinDew || t >= tMaxDew) return;

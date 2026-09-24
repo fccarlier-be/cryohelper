@@ -4,7 +4,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,7 +26,7 @@ import * as UC from '../../services/unitConverter';
 
 type CalcSection = 'pressure' | 'temperature' | 'power' | 'quick' | 'saturation';
 
-const SECTION_OPTIONS: Array<{ value: CalcSection; label: string }> = [
+const SECTION_OPTIONS: { value: CalcSection; label: string }[] = [
   { value: 'pressure', label: 'Pression' },
   { value: 'temperature', label: 'Temp.' },
   { value: 'power', label: 'Puiss.' },
@@ -256,7 +255,7 @@ function QuickCalcSection(): React.JSX.Element {
     [spacing, radius, typography],
   );
 
-  function ShBadge({ value, min, max }: { value: number; min: number; max: number }) {
+  function renderShBadge(value: number, min: number, max: number) {
     const c = badgeStyle(value, min, max);
     return (
       <View style={[badgeStyles.badge, { backgroundColor: c + '22' }]}>
@@ -318,7 +317,7 @@ function QuickCalcSection(): React.JSX.Element {
           unit="°C"
         />
         <ResultRow label="Surchauffe" value={sh.toFixed(1)} unit="K" />
-        <ShBadge value={sh} min={4} max={12} />
+        {renderShBadge(sh, 4, 12)}
 
         <View style={{ height: spacing.md }} />
 
@@ -335,7 +334,7 @@ function QuickCalcSection(): React.JSX.Element {
           unit="°C"
         />
         <ResultRow label="Sous-refroidissement" value={sc.toFixed(1)} unit="K" />
-        <ShBadge value={sc} min={3} max={10} />
+        {renderShBadge(sc, 3, 10)}
       </Card>
     </>
   );
@@ -345,7 +344,7 @@ function QuickCalcSection(): React.JSX.Element {
 
 type SatMode = 'P2T' | 'T2P';
 
-const SAT_MODE_OPTIONS: Array<{ value: SatMode; label: string }> = [
+const SAT_MODE_OPTIONS: { value: SatMode; label: string }[] = [
   { value: 'P2T', label: 'Pression → T°' },
   { value: 'T2P', label: 'T° → Pression' },
 ];

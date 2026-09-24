@@ -16,7 +16,7 @@ interface Props {
 
 type TExtString = '28' | '32' | '36' | '40';
 
-const T_EXT_OPTIONS: Array<{ value: TExtString; label: string }> = COSTIC_T_EXT.map((t) => ({
+const T_EXT_OPTIONS: { value: TExtString; label: string }[] = COSTIC_T_EXT.map((t) => ({
   value: String(t) as TExtString,
   label: `${t} °C`,
 }));

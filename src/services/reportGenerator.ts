@@ -1,7 +1,6 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import { satPointFromTemp } from './thermoUtils';
-import { satPointFromPressure } from './thermoUtils';
+import { satPointFromTemp , satPointFromPressure } from './thermoUtils';
 import { satFromTemp, satFromPressure, satFromTempDew } from './fluidInterpolator';
 import type { ReportData, PassData } from '../types/report';
 import type { RefrigerantData, SaturationPoint } from '../types/refrigerant';
@@ -54,7 +53,7 @@ function denseSatPoints(fluid: RefrigerantData, pMin: number, pMax: number): Sat
 }
 
 function catmullRomSVG(
-  pts: Array<{ x: number; y: number }>,
+  pts: { x: number; y: number }[],
 ): string {
   if (pts.length === 0) return '';
   let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
@@ -79,7 +78,7 @@ function buildDomeSVG(fluid: RefrigerantData, hMin: number, hMax: number, pMin: 
   if (table?.sat.isZeotropic) {
     const rows = table.sat.rows;
     const step = Math.max(1, Math.floor(rows.length / 500));
-    const filtered: Array<{ hLiq: number; hVap: number; p: number }> = [];
+    const filtered: { hLiq: number; hVap: number; p: number }[] = [];
     for (let i = 0; i < rows.length; i += step) {
       const p = rows[i][SAT_ZEO_COL.P_BAR];
       if (p >= pMin && p <= pMax)
@@ -141,7 +140,7 @@ function buildIsothermsSVG(table: FluidTable, x: (h:number)=>number, y: (p:numbe
       if (t <= table.criticalTempC) satPt = { hLiq: sp.hLiq_kJkg, hVap: sp.hVap_kJkg, pressureBar: sp.pressureBar };
     } catch { continue; }
     // Vapor side
-    const vapPts: Array<{x:number;y:number}> = [];
+    const vapPts: {x:number;y:number}[] = [];
     for (const iso of table.sh) {
       const fi = (t - iso.tMinC) / iso.tStepC;
       if (fi < 0 || fi > iso.rows.length - 1) continue;
@@ -198,7 +197,7 @@ function buildIsochoresSVG(table: FluidTable, x: (h:number)=>number, y: (p:numbe
   const targets = [1,2,3,4].map(i => Math.pow(10, logMin + (i/5)*(logMax-logMin)));
   const lines: string[] = [];
   for (const rho of targets) {
-    const pts: Array<{x:number;y:number}> = [];
+    const pts: {x:number;y:number}[] = [];
     for (const iso of table.sh) {
       const rows = iso.rows; if (rows.length < 2) continue;
       const rFirst = rows[0][SH_COL.RHO_KGM3], rLast = rows[rows.length-1][SH_COL.RHO_KGM3];

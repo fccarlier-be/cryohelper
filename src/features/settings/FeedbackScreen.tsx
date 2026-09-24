@@ -180,8 +180,8 @@ export default function FeedbackScreen(): React.JSX.Element {
             </TouchableOpacity>
 
             <Text style={styles.hint}>
-              Votre client email s'ouvrira avec le message pré-rempli.{'\n'}
-              Aucune donnée n'est envoyée automatiquement.
+              Votre client email s’ouvrira avec le message pré-rempli.{'\n'}
+              Aucune donnée n’est envoyée automatiquement.
             </Text>
           </View>
         </ScrollView>

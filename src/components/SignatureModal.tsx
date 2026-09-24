@@ -5,9 +5,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
+ PanResponder } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PanResponder } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useAppTheme } from '../context/ThemeContext';
 

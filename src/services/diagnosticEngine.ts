@@ -11,7 +11,7 @@ import {
 } from './diagnosticRules';
 import type { DiagnosticInput, DiagnosticOutput, DiagnosticResult, FaultId } from '../types/diagnostic';
 
-const ALL_RULES: Array<{ id: FaultId; fn: (i: DiagnosticInput) => { score: number; symptoms: string[] } }> = [
+const ALL_RULES: { id: FaultId; fn: (i: DiagnosticInput) => { score: number; symptoms: string[] } }[] = [
   { id: 'LOW_REFRIGERANT',       fn: scoreLowRefrigerant },
   { id: 'REFRIGERANT_OVERCHARGE', fn: scoreRefrigerantOvercharge },
   { id: 'POOR_EVAPORATOR',       fn: scorePoorEvaporator },

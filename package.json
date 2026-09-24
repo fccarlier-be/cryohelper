@@ -7,7 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -19,11 +19,11 @@
     "expo-asset": "~57.0.18",
     "expo-file-system": "~57.0.7",
     "expo-font": "~57.0.4",
-    "expo-haptics": "~57.0.3",
     "expo-print": "~57.0.2",
     "expo-screen-orientation": "~57.0.2",
     "expo-sharing": "~57.0.22",
     "expo-status-bar": "~57.0.1",
+    "expo-system-ui": "~57.0.4",
     "expo-updates": "~57.0.23",
     "react": "19.2.3",
     "react-native": "0.86.3",
@@ -36,6 +36,8 @@
     "@babel/core": "^7.24.0",
     "@types/react": "~19.2.0",
     "babel-preset-expo": "~57.0.13",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "^57.0.2",
     "typescript": "~5.9.2"
   }
 }

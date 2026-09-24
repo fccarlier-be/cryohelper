@@ -116,7 +116,7 @@ export default function NumericKeypad(): React.JSX.Element | null {
     onChangeRef.current(newVal);
   }
 
-  function Key({ k, special, disabled }: { k: string; special?: boolean; disabled?: boolean }) {
+  function renderKey(k: string, special?: boolean, disabled?: boolean) {
     return (
       <TouchableOpacity
         style={[styles.key, special && styles.keySpecial, disabled && styles.keyDisabled]}
@@ -138,18 +138,18 @@ export default function NumericKeypad(): React.JSX.Element | null {
       <View style={styles.body}>
         <View style={styles.leftGrid}>
           <View style={styles.row}>
-            <Key k="1" /><Key k="2" /><Key k="3" />
+            {renderKey('1')}{renderKey('2')}{renderKey('3')}
           </View>
           <View style={styles.row}>
-            <Key k="4" /><Key k="5" /><Key k="6" />
+            {renderKey('4')}{renderKey('5')}{renderKey('6')}
           </View>
           <View style={styles.row}>
-            <Key k="7" /><Key k="8" /><Key k="9" />
+            {renderKey('7')}{renderKey('8')}{renderKey('9')}
           </View>
           <View style={styles.row}>
-            <Key k="±" special disabled={!signed} />
-            <Key k="0" />
-            <Key k="." special />
+            {renderKey('±', true, !signed)}
+            {renderKey('0')}
+            {renderKey('.', true)}
           </View>
         </View>
 
@@ -165,7 +165,8 @@ export default function NumericKeypad(): React.JSX.Element | null {
             style={styles.keyTallConfirm}
             onPress={() => {
               const fn = activeField.onConfirmRef?.current;
-              fn ? fn() : hideKeypad();
+              if (fn) fn();
+              else hideKeypad();
             }}
             activeOpacity={0.6}
           >

@@ -29,14 +29,14 @@ export const ABOUT: LegalDocument = {
       content: `${APP_DEVELOPER}\n${APP_LOCATION}\n${APP_CONTACT}\n\n${APP_COPYRIGHT}`,
     },
     {
-      title: 'Modules V1',
+      title: 'Modules',
       content:
-        '• Bilan thermique simplifié (mode rapide & détaillé)\n• Diagramme P-h enthalpique (R134a, R410A, R32, R290)\n• Calculs rapides (conversions + utilitaires)',
+        '• Bilan thermique (modes rapide, détaillé et COSTIC)\n• Diagramme P-h et calcul de cycle frigorifique (23 fluides)\n• Calculs rapides, conversions et table de saturation P ↔ T\n• Diagnostic de panne guidé (mesures avant / après intervention)\n• Rapport d\'intervention PDF avec signatures et historique\n• Boreas, assistant IA sur serveur Ollama personnel (optionnel)',
     },
     {
       title: 'Données fluides',
       content:
-        "Les propriétés thermodynamiques sont des approximations basées sur les tables ASHRAE / NIST, adaptées à un usage terrain. Pour des calculs de précision scientifique, utiliser CoolProp ou des tables certifiées.",
+        "Les propriétés thermodynamiques proviennent de tables pré-calculées avec la bibliothèque CoolProp (saturation au pas de 0,1 °C, vapeur surchauffée par isobares), puis interpolées. Pour des calculs de précision scientifique, utiliser des tables certifiées.",
     },
   ],
 };
@@ -106,12 +106,17 @@ export const PRIVACY: LegalDocument = {
     {
       title: 'Aucune collecte de données',
       content:
-        "CryoHelper ne collecte, ne transmet et ne stocke aucune donnée personnelle sur des serveurs distants. L'application fonctionne entièrement hors ligne.",
+        "CryoHelper ne collecte, ne transmet et ne stocke aucune donnée personnelle sur des serveurs distants. Tous les calculs fonctionnent hors ligne.",
     },
     {
       title: 'Stockage local',
       content:
-        "Les préférences (thème) sont stockées localement sur votre appareil via AsyncStorage. Ces données ne quittent jamais l'appareil et peuvent être supprimées en désinstallant l'application.",
+        "Sont stockés localement sur votre appareil (AsyncStorage) : le thème, le nom du technicien et de la société, la configuration de l'assistant Boreas et l'historique des 50 dernières interventions (client, référence d'installation, mesures). Ces données ne quittent l'appareil que si vous partagez un rapport, et sont supprimées en désinstallant l'application. L'historique peut être effacé depuis les réglages.",
+    },
+    {
+      title: 'Assistant Boreas',
+      content:
+        "Boreas est désactivé tant qu'aucun serveur n'est configuré. Lorsqu'il est utilisé, vos questions et les mesures de l'intervention en cours sont envoyées uniquement au serveur Ollama dont vous avez saisi l'adresse (en général votre propre ordinateur ou serveur).",
     },
     {
       title: 'Feedback',

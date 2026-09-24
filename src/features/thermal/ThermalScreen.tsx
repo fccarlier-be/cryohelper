@@ -33,7 +33,7 @@ import type {
 
 type Mode = 'quick' | 'detailed' | 'costic';
 
-const MODE_OPTIONS: Array<{ value: Mode; label: string }> = [
+const MODE_OPTIONS: { value: Mode; label: string }[] = [
   { value: 'quick', label: 'Rapide' },
   { value: 'detailed', label: 'Détaillé' },
   { value: 'costic', label: 'COSTIC' },

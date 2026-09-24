@@ -207,7 +207,7 @@ export interface Theme {
   mode: ThemeMode;
 }
 
-export const THEME_MODES: Array<{ key: ThemeMode; label: string; icon: string }> = [
+export const THEME_MODES: { key: ThemeMode; label: string; icon: string }[] = [
   { key: 'dark', label: 'Sombre', icon: 'moon' },
   { key: 'intermediate', label: 'Intermédiaire', icon: 'contrast' },
   { key: 'light', label: 'Clair', icon: 'sunny' },

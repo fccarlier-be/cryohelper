@@ -39,7 +39,6 @@ import type {
   COSTICInput,
   COSTICResult,
   COSTICElementResult,
-  RoomType,
 } from '../types/thermal';
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────

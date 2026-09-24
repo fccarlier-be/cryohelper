@@ -278,7 +278,7 @@ export default function CopilotScreen(): React.JSX.Element {
           <Ionicons name="server-outline" size={48} color={colors.textMuted} style={styles.emptyIcon} />
           <Text style={styles.emptyTitle}>Serveur non configuré</Text>
           <Text style={styles.noUrlText}>
-            Va dans Réglages → URL serveur Copilot et saisis l'adresse de ton serveur Ollama.
+            Va dans Réglages → Copilot IA et saisis l’adresse de ton serveur Ollama.
           </Text>
         </View>
       </SafeAreaView>

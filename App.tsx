@@ -1,9 +1,8 @@
-import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, Text, View } from 'react-native';
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 import { ReportContextProvider } from './src/context/ReportContext';

@@ -61,10 +61,6 @@ export default function SettingsScreen(): React.JSX.Element {
     saveCopilotUrl(copilotUrl);
   }
 
-  function handleCopilotModelBlur() {
-    saveCopilotModel(copilotModel);
-  }
-
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -174,7 +170,7 @@ export default function SettingsScreen(): React.JSX.Element {
     last?: boolean;
   };
 
-  function NavRow({ icon, label, onPress, last }: NavRowProps) {
+  function renderNavRow({ icon, label, onPress, last }: NavRowProps) {
     return (
       <TouchableOpacity
         style={[styles.navRow, last && styles.navRowLast]}
@@ -292,22 +288,22 @@ export default function SettingsScreen(): React.JSX.Element {
           <View style={styles.sectionGap}>
             <SectionTitle title="Support" />
             <Card>
-              <NavRow
-                icon="time-outline"
-                label="Historique des interventions"
-                onPress={() => navigation.navigate('History')}
-              />
-              <NavRow
-                icon="chatbubble-outline"
-                label="Envoyer un feedback"
-                onPress={() => navigation.navigate('Feedback')}
-              />
-              <NavRow
-                icon="document-text-outline"
-                label="Mentions légales"
-                onPress={() => navigation.navigate('Legal')}
-                last
-              />
+              {renderNavRow({
+                icon: 'time-outline',
+                label: 'Historique des interventions',
+                onPress: () => navigation.navigate('History'),
+              })}
+              {renderNavRow({
+                icon: 'chatbubble-outline',
+                label: 'Envoyer un feedback',
+                onPress: () => navigation.navigate('Feedback'),
+              })}
+              {renderNavRow({
+                icon: 'document-text-outline',
+                label: 'Mentions légales',
+                onPress: () => navigation.navigate('Legal'),
+                last: true,
+              })}
             </Card>
           </View>
 

@@ -50,7 +50,7 @@ function DocTab({
 }
 
 function DocContent({ doc }: { doc: LegalDocument }): React.JSX.Element {
-  const { colors, spacing, radius, typography } = useAppTheme();
+  const { colors, spacing, typography } = useAppTheme();
 
   const styles = useMemo(
     () =>
@@ -72,7 +72,7 @@ function DocContent({ doc }: { doc: LegalDocument }): React.JSX.Element {
           lineHeight: 20,
         },
       }),
-    [colors, spacing, radius, typography],
+    [colors, spacing, typography],
   );
 
   return (

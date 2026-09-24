@@ -3,7 +3,7 @@ import { APP_CONTACT, APP_VERSION } from '../data/legal';
 
 export type FeedbackType = 'bug' | 'suggestion' | 'erreur_donnees' | 'autre';
 
-export const FEEDBACK_TYPES: Array<{ key: FeedbackType; label: string; icon: string }> = [
+export const FEEDBACK_TYPES: { key: FeedbackType; label: string; icon: string }[] = [
   { key: 'bug', label: 'Bug', icon: 'bug-outline' },
   { key: 'suggestion', label: 'Suggestion', icon: 'bulb-outline' },
   { key: 'erreur_donnees', label: 'Erreur données', icon: 'book-outline' },
